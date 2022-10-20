@@ -8,7 +8,7 @@ CREATE TABLE users (
   id SERIAL PRIMARY KEY NOT NULL,
   name VARCHAR(255) NOT NULL,
   email VARCHAR(255) NOT NULL,
-  passwrod VARCHAR(255) NOT NULL
+  password VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE properties (
@@ -21,8 +21,8 @@ CREATE TABLE properties (
   cover_photo_url VARCHAR(255) NOT NULL,
   cost_per_night INT NOT NULL DEFAULT 0,
   parking_spaces INT NOT NULL DEFAULT 0,
-  num_of_bathrooms INT NOT NULL DEFAULT 0,
-  num_of_bedrooms INT NOT NULL DEFAULT 0,
+  number_of_bathrooms INT NOT NULL DEFAULT 0,
+  number_of_bedrooms INT NOT NULL DEFAULT 0,
 
   country VARCHAR(255) NOT NULL,
   street VARCHAR(255) NOT NULL,
