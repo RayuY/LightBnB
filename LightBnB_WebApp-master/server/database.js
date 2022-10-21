@@ -1,6 +1,7 @@
 const properties = require('./json/properties.json');
 const users = require('./json/users.json');
 const { Pool } = require('pg');
+const { title } = require('process');
 
 const pool = new Pool({
   user: 'labber',
@@ -63,7 +64,6 @@ exports.getUserWithId = getUserWithId;
  */
 const addUser =  function(user) {
   const values = [user.name, user.email, user.password]
-
   return pool
     .query(`
     INSERT INTO users (name, email, password)
@@ -181,9 +181,33 @@ exports.getAllProperties = getAllProperties;
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
-  const propertyId = Object.keys(properties).length + 1;
-  property.id = propertyId;
-  properties[propertyId] = property;
-  return Promise.resolve(property);
+  
+  const queryParams = [];
+
+  let queryString = `
+  INSERT INTO properties (title, description, number_of_bedrooms, number_of_bathrooms, parking_spaces, cost_per_night, thumbnail_photo_url, cover_photo_url, street, country, city, province, post_code, owner_id)
+  VALUES (
+  `;
+
+  console.log(property)
+  for (key in property) {
+    queryParams.push(property[key]);
+    queryString += `$${queryParams.length},`
+  }
+
+  queryString = queryString.slice(0, -1)
+  queryString += `
+  )
+  RETURNING *;
+  `;
+
+  return pool
+    .query(queryString, queryParams)
+    .then((result) => {
+      return result.rows;
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
 }
 exports.addProperty = addProperty;
