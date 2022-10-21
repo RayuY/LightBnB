@@ -30,17 +30,6 @@ const getUserWithEmail = function(email) {
     .catch((err) => {
       console.log(err.message);
     });
-    
-  // let user;
-  // for (const userId in users) {
-  //   user = users[userId];
-  //   if (user.email.toLowerCase() === email.toLowerCase()) {
-  //     break;
-  //   } else {
-  //     user = null;
-  //   }
-  // }
-  // return Promise.resolve(user);
 }
 exports.getUserWithEmail = getUserWithEmail;
 
@@ -67,7 +56,6 @@ const getUserWithId = function(id) {
 }
 exports.getUserWithId = getUserWithId;
 
-
 /**
  * Add a new user to the database.
  * @param {{name: string, password: string, email: string}} user
@@ -90,11 +78,6 @@ const addUser =  function(user) {
       console.log(err.message);
     });
 
-
-  // const userId = Object.keys(users).length + 1;
-  // user.id = userId;
-  // users[userId] = user;
-  // return Promise.resolve(user);
 }
 exports.addUser = addUser;
 
@@ -106,7 +89,30 @@ exports.addUser = addUser;
  * @return {Promise<[{}]>} A promise to the reservations.
  */
 const getAllReservations = function(guest_id, limit = 10) {
-  return getAllProperties(null, 2);
+  const values = [guest_id, limit]
+  return pool
+    .query(`
+    SELECT reservations.id, 
+    properties.*,
+    reservations.start_date, 
+    avg(rating) as average_rating
+
+    FROM reservations
+    JOIN properties ON reservations.property_id = properties.id
+    JOIN property_reviews ON properties.id = property_reviews.property_id
+
+    WHERE reservations.guest_id = $1
+    GROUP BY properties.id, reservations.id
+    ORDER BY reservations.start_date
+    LIMIT $2;
+    `, values)
+    .then((result) => {
+      console.log(result.rows)
+      return result.rows;
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
 }
 exports.getAllReservations = getAllReservations;
 
@@ -132,15 +138,8 @@ const getAllProperties = function(options, limit = 10) {
     .catch((err) => {
       console.log(err.message);
     });
-
-  // const limitedProperties = {};
-  // for (let i = 1; i <= limit; i++) {
-  //   limitedProperties[i] = properties[i];
-  // }
-  // return Promise.resolve(limitedProperties);
 }
 exports.getAllProperties = getAllProperties;
-
 
 /**
  * Add a property to the database
